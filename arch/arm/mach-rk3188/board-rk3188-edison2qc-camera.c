@@ -11,7 +11,7 @@
 #define CONFIG_SENSOR_IIC_ADDR_0                0x78
 #define CONFIG_SENSOR_IIC_ADAPTER_ID_0          3
 #define CONFIG_SENSOR_CIF_INDEX_0               0
-#define CONFIG_SENSOR_ORIENTATION_0             270
+#define CONFIG_SENSOR_ORIENTATION_0             90
 #define CONFIG_SENSOR_POWER_PIN_0               INVALID_GPIO
 #define CONFIG_SENSOR_RESET_PIN_0               INVALID_GPIO
 #define CONFIG_SENSOR_POWERDN_PIN_0             RK30_PIN3_PB5
