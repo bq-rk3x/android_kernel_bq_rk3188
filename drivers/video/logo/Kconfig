@@ -36,6 +36,9 @@ config LOGO_MAXWELL2QC_CLUT224
 config LOGO_EDISON2QC_CLUT224
         bool "Standard 224-color Edison 2 Quad Core logo"
 
+config LOGO_CURIE2QC_CLUT224
+        bool "Standard 224-color Curie 2 Quad Core logo"
+
 config LOGO_PIPO_CLUT224
 	bool "Standard 224-pipo Linux logo"
 	default n

@@ -39,6 +39,7 @@ extern const struct linux_logo logo_linux_clut224;
 extern const struct linux_logo logo_bq_800x1280_clut224;
 extern const struct linux_logo logo_maxwell2qc_clut224;
 extern const struct linux_logo logo_edison2qc_clut224;
+extern const struct linux_logo logo_curie2qc_clut224;
 
 #ifdef CONFIG_LOGO_PIPO_CLUT224
 extern const struct linux_logo logo_pipo_clut224;
