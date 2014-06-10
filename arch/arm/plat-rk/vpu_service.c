@@ -229,8 +229,6 @@ static struct clk *hclk_cpu_vcodec;
 static vpu_service_info service;
 static vpu_device 	dec_dev;
 static vpu_device 	enc_dev;
-static unsigned int irq_vdpu = IRQ_VDPU;
-static unsigned int irq_vepu = IRQ_VEPU;
 
 #define VPU_POWER_OFF_DELAY		4*HZ /* 4s */
 #define VPU_TIMEOUT_DELAY		2*HZ /* 2s */
@@ -1018,28 +1016,6 @@ static struct platform_device vpu_service_device = {
 	.id 		   = -1,
 };
 
-static int vpu_probe(struct platform_device *pdev)
-{
-	int irq;
-
-	irq = platform_get_irq_byname(pdev, "irq_vdpu");
-	if (irq > 0)
-		irq_vdpu = irq;
-	irq = platform_get_irq_byname(pdev, "irq_vepu");
-	if (irq > 0)
-		irq_vepu = irq;
-
-	return 0;
-}
-
-static struct platform_driver vpu_driver = {
-	.probe     = vpu_probe,
-	.driver    = {
-		.name  = "vpu",
-		.owner = THIS_MODULE,
-	},
-};
-
 static struct platform_driver vpu_service_driver = {
 	.driver    = {
 		.name  = "vpu_service",
@@ -1348,8 +1324,7 @@ static int __init vpu_service_init(void)
 {
 	int ret;
 
-	platform_driver_register(&vpu_driver);
-	pr_debug("baseaddr = 0x%08x vdpu irq = %d vepu irq = %d\n", VCODEC_PHYS, irq_vdpu, irq_vepu);
+	pr_debug("baseaddr = 0x%08x vdpu irq = %d vepu irq = %d\n", VCODEC_PHYS, IRQ_VDPU, IRQ_VEPU);
 
 	wake_lock_init(&service.wake_lock, WAKE_LOCK_SUSPEND, "vpu");
 	INIT_LIST_HEAD(&service.waiting);
@@ -1390,15 +1365,15 @@ static int __init vpu_service_init(void)
 	}
 
 	/* get the IRQ line */
-	ret = request_threaded_irq(irq_vdpu, vdpu_irq, vdpu_isr, 0, "vdpu", (void *)&dec_dev);
+	ret = request_threaded_irq(IRQ_VDPU, vdpu_irq, vdpu_isr, IRQF_SHARED, "vdpu", (void *)&dec_dev);
 	if (ret) {
-		pr_err("error: can't request vdpu irq %d\n", irq_vdpu);
+		pr_err("error: can't request vdpu irq %d\n", IRQ_VDPU);
 		goto err_req_vdpu_irq;
 	}
 
-	ret = request_threaded_irq(irq_vepu, vepu_irq, vepu_isr, 0, "vepu", (void *)&enc_dev);
+	ret = request_threaded_irq(IRQ_VEPU, vepu_irq, vepu_isr, IRQF_SHARED, "vepu", (void *)&enc_dev);
 	if (ret) {
-		pr_err("error: can't request vepu irq %d\n", irq_vepu);
+		pr_err("error: can't request vepu irq %d\n", IRQ_VEPU);
 		goto err_req_vepu_irq;
 	}
 
@@ -1418,9 +1393,9 @@ static int __init vpu_service_init(void)
 	return 0;
 
 err_register:
-	free_irq(irq_vepu, (void *)&enc_dev);
+	free_irq(IRQ_VEPU, (void *)&enc_dev);
 err_req_vepu_irq:
-	free_irq(irq_vdpu, (void *)&dec_dev);
+	free_irq(IRQ_VDPU, (void *)&dec_dev);
 err_req_vdpu_irq:
 	pr_info("init failed\n");
 err_reserve_io:
@@ -1441,8 +1416,8 @@ static void __exit vpu_service_exit(void)
 	platform_device_unregister(&vpu_service_device);
 	platform_driver_unregister(&vpu_service_driver);
 	misc_deregister(&vpu_service_misc_device);
-	free_irq(irq_vepu, (void *)&enc_dev);
-	free_irq(irq_vdpu, (void *)&dec_dev);
+	free_irq(IRQ_VEPU, (void *)&enc_dev);
+	free_irq(IRQ_VDPU, (void *)&dec_dev);
 	vpu_service_release_io();
 	vpu_put_clk();
 	wake_lock_destroy(&service.wake_lock);
