@@ -78,7 +78,6 @@ struct soc_camera_host_ops {
 	int (*get_formats)(struct soc_camera_device *, unsigned int,
 			   struct soc_camera_format_xlate *);
 	void (*put_formats)(struct soc_camera_device *);
-	void (*set_scale_mode)(struct soc_camera_device *icd,int scale_mode );   // hhs
 	int (*cropcap)(struct soc_camera_device *, struct v4l2_cropcap *);
 	int (*get_crop)(struct soc_camera_device *, struct v4l2_crop *);
 	int (*set_crop)(struct soc_camera_device *, struct v4l2_crop *);
@@ -133,7 +132,7 @@ struct soc_camera_link {
 	struct i2c_board_info *board_info;
 	const char *module_name;
 	void *priv;
-
+    void *priv_usr;                        /* ddl@rock-chips.com: add priv_usr */
 	/* Optional regulators that have to be managed on power on/off events */
 	struct regulator_bulk_data *regulators;
 	int num_regulators;
@@ -145,9 +144,6 @@ struct soc_camera_link {
 	int (*add_device)(struct soc_camera_link *, struct device *);
 	void (*del_device)(struct soc_camera_link *);
 	/* Optional callbacks to power on or off and reset the sensor */
-	// honghaishen_test hhs_1219 start
-	unsigned int (*get_pwdpin)(struct device *, int *); 
-	// honghaishen_test hhs_1219 end
 	int (*power)(struct device *, int);
 	int (*reset)(struct device *);
 	int (*powerdown)(struct device *, int);		/* ddl@rock-chisp.com : support sensor powerdown  */
@@ -159,10 +155,6 @@ struct soc_camera_link {
 	int (*set_bus_param)(struct soc_camera_link *, unsigned long flags);
 	unsigned long (*query_bus_param)(struct soc_camera_link *);
 	void (*free_bus)(struct soc_camera_link *);
-	/* hhs for fov test  start */
-	int fov_v;
-	int fov_h;
-	/* hhs for fov test  end */
 };
 
 static inline struct soc_camera_device *to_soc_camera_dev(
@@ -227,7 +219,7 @@ struct soc_camera_ops {
 	int (*enum_input)(struct soc_camera_device *, struct v4l2_input *);
 
 	const struct v4l2_queryctrl *controls;
-	const struct v4l2_querymenu *menus;                /* ddl@rock-chips.com : Add ioctrl -VIDIOC_QUERYMENU */
+	struct v4l2_querymenu *menus;                /* ddl@rock-chips.com : Add ioctrl -VIDIOC_QUERYMENU */
 	int num_controls;
 	int num_menus;      /* ddl@rock-chips.com : Add ioctrl -VIDIOC_QUERYMENU */
 };
